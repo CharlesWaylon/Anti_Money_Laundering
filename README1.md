@@ -1,10 +1,10 @@
 # Initial GNN Model for AML Transaction Classification
 
-This document summarizes the earliest graph neural network work in this project. It focuses only on the original AML transaction dataset and the first graph-based modeling pipeline used to classify suspicious transactions.
+This document summarizes my earliest graph neural network work in this project. It focuses only on the original AML transaction dataset and the first graph-based modeling pipeline I used to classify suspicious transactions.
 
 ## Overview
 
-The initial GNN effort treats AML transactions as edges in a graph of accounts. Instead of modeling each transaction as an isolated row, the project uses sender-beneficiary relationships to let the model learn from transaction structure, account behavior, and temporal patterns at the same time.
+My initial GNN effort treated AML transactions as edges in a graph of accounts. Instead of modeling each transaction as an isolated row, I used sender-beneficiary relationships so the model could learn from transaction structure, account behavior, and temporal patterns at the same time.
 
 The main artifacts for this stage are:
 
@@ -15,7 +15,7 @@ The main artifacts for this stage are:
 
 ## Dataset used
 
-The model is built on `aml_syn_data`, the main transaction dataset in the project.
+I built the model on `aml_syn_data`, the main transaction dataset in the project.
 
 Based on the saved files in this repository, the dataset contains:
 
@@ -24,25 +24,25 @@ Based on the saved files in this repository, the dataset contains:
 - labels `GOOD` and `BAD`
 - class balance of about 79.05% `GOOD` and 20.95% `BAD`
 
-This means the task is an imbalanced binary classification problem, which matters when choosing metrics and loss weighting.
+This means I was working with an imbalanced binary classification problem, which matters when choosing metrics and loss weighting.
 
 ## Modeling idea
 
-The GNN setup reframes the data as a transaction graph:
+I reframed the data as a transaction graph:
 
 - nodes represent accounts
 - edges represent transactions from sender account to beneficiary account
 - edge labels represent whether the transaction is `GOOD` or `BAD`
 
-This approach is useful for AML because suspicious behavior often depends on network structure, repeated counterparties, account roles, and relational patterns that flat row-wise models can miss.
+I took this approach because suspicious behavior in AML often depends on network structure, repeated counterparties, account roles, and relational patterns that flat row-wise models can miss.
 
 ## Feature engineering
 
-The initial pipeline in `GNN_Model_1.ipynb` and `GNN_pt2.py` builds both edge features and node features.
+In `GNN_Model_1.ipynb` and `GNN_pt2.py`, I built both edge features and node features.
 
 ### Edge features
 
-The saved code shows the following transaction-level features were used:
+The saved code shows that I used the following transaction-level features:
 
 - log-transformed `USD_amount`
 - `hour`
@@ -50,11 +50,11 @@ The saved code shows the following transaction-level features were used:
 - `month`
 - one-hot encoded `Transaction_Type`
 
-Continuous edge features were standardized using statistics fit on the training split only.
+I standardized the continuous edge features using statistics fit on the training split only.
 
 ### Node features
 
-The follow-on GNN script builds per-account node features from the training data, including:
+In the follow-on GNN script, I built per-account node features from the training data, including:
 
 - sent transaction count
 - total sent amount
@@ -68,17 +68,17 @@ These node features let the model combine account-level behavior with per-transa
 
 ## Data splitting
 
-The transaction records were sorted by `Time_step` and split in chronological order:
+I sorted the transaction records by `Time_step` and split them in chronological order:
 
 - 70% train
 - 15% validation
 - 15% test
 
-This is a sensible choice for AML-style data because it reduces temporal leakage compared with random splitting.
+I chose that approach because it reduces temporal leakage compared with random splitting.
 
 ## Initial GNN architecture
 
-The main graph model defined in `GNN_pt2.py` is an edge-classification GraphSAGE network:
+The main graph model I defined in `GNN_pt2.py` is an edge-classification GraphSAGE network:
 
 - two `SAGEConv` layers produce node embeddings
 - for each transaction edge, the model concatenates:
@@ -87,7 +87,7 @@ The main graph model defined in `GNN_pt2.py` is an edge-classification GraphSAGE
   - edge attributes
 - a small MLP outputs a binary logit for whether the transaction is suspicious
 
-Training uses:
+For training, I used:
 
 - `BCEWithLogitsLoss`
 - positive-class weighting based on class imbalance
@@ -98,7 +98,7 @@ Training uses:
 
 ## Saved training progress
 
-`GNN_Model_1.ipynb` preserves a training log for the first model run.
+`GNN_Model_1.ipynb` preserves a training log for my first model run.
 
 The recorded validation F1:
 
@@ -107,7 +107,7 @@ The recorded validation F1:
 - improved later in training
 - reached about `0.6220` by epoch 50
 
-This suggests the graph model was learning useful signal, even if the experiment was still in an exploratory stage.
+This suggests that the graph model was learning useful signal, even though the experiment was still in an exploratory stage.
 
 ## Additional baselines and follow-up experiments
 
@@ -120,11 +120,11 @@ The notebook also includes comparisons and extensions beyond the first GraphSAGE
 - a Graph Attention Network (`GAT`) variant
 - simple crosstab analysis linking label rates to transaction type, amount bins, and country combinations
 
-That makes the notebook more than a single model run. It acts as an early research workspace for understanding what information is predictive and whether graph structure adds value beyond standard tabular features.
+That makes the notebook more than a single model run. For me, it acted as an early research workspace for understanding what information was predictive and whether graph structure added value beyond standard tabular features.
 
 ## What this stage accomplished
 
-The initial GNN work established a reusable graph-learning direction for the project:
+The initial GNN work established a reusable graph-learning direction for my project:
 
 - it converted the AML dataset into a node-edge representation
 - it built a first edge-classification GNN for suspicious transaction detection
@@ -151,4 +151,4 @@ From the saved files, this work still looks like an initial research prototype r
 
 ## Summary
 
-The initial GNN stage of this project explored AML detection as an edge-classification problem on a transaction graph. Transactions were modeled as edges between accounts, enriched with temporal and transaction-type features, while nodes captured account-level behavior. The first saved training run shows validation F1 improving to roughly `0.62`, which makes this a promising early graph-based baseline for the broader AML modeling work.
+In this initial GNN stage of the project, I explored AML detection as an edge-classification problem on a transaction graph. I modeled transactions as edges between accounts, enriched them with temporal and transaction-type features, and used nodes to capture account-level behavior. The first saved training run shows validation F1 improving to roughly `0.62`, which made this a promising early graph-based baseline for my broader AML modeling work.
